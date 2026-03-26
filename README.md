@@ -1,2 +1,2 @@
 # The-X-Compressor
-A wide variety of data compressor
+A versital data compressor written in Rust
