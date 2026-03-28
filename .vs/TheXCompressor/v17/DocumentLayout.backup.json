@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\grove\\Desktop\\TheXCompressor\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|c:\\users\\grove\\desktop\\thexcompressor\\thexcompressor\\algorithms\\rle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|solutionrelative:thexcompressor\\algorithms\\rle.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|c:\\users\\grove\\desktop\\thexcompressor\\thexcompressor\\algorithms\\huffman.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|solutionrelative:thexcompressor\\algorithms\\huffman.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|c:\\users\\grove\\desktop\\thexcompressor\\thexcompressor\\core\\compressionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|solutionrelative:thexcompressor\\core\\compressionmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|c:\\users\\grove\\desktop\\thexcompressor\\thexcompressor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|solutionrelative:thexcompressor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|c:\\users\\grove\\desktop\\thexcompressor\\thexcompressor\\ui\\mainview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{65B283B4-7562-47ED-B1C9-F9A1322946E4}|TheXCompressor\\TheXCompressor.csproj|solutionrelative:thexcompressor\\ui\\mainview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Huffman.cs",
+              "DocumentMoniker": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Algorithms\\Huffman.cs",
+              "RelativeDocumentMoniker": "TheXCompressor\\Algorithms\\Huffman.cs",
+              "ToolTip": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Algorithms\\Huffman.cs",
+              "RelativeToolTip": "TheXCompressor\\Algorithms\\Huffman.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:48:23.958Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "RLE.cs",
+              "DocumentMoniker": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Algorithms\\RLE.cs",
+              "RelativeDocumentMoniker": "TheXCompressor\\Algorithms\\RLE.cs",
+              "ToolTip": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Algorithms\\RLE.cs",
+              "RelativeToolTip": "TheXCompressor\\Algorithms\\RLE.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAAgwAoAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:48:17.235Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CompressionManager.cs",
+              "DocumentMoniker": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Core\\CompressionManager.cs",
+              "RelativeDocumentMoniker": "TheXCompressor\\Core\\CompressionManager.cs",
+              "ToolTip": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Core\\CompressionManager.cs",
+              "RelativeToolTip": "TheXCompressor\\Core\\CompressionManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:38:27.265Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MainView.cs",
+              "DocumentMoniker": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\UI\\MainView.cs",
+              "RelativeDocumentMoniker": "TheXCompressor\\UI\\MainView.cs",
+              "ToolTip": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\UI\\MainView.cs",
+              "RelativeToolTip": "TheXCompressor\\UI\\MainView.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAuwF0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:26:20.961Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Program.cs",
+              "RelativeDocumentMoniker": "TheXCompressor\\Program.cs",
+              "ToolTip": "C:\\Users\\grove\\Desktop\\TheXCompressor\\TheXCompressor\\Program.cs",
+              "RelativeToolTip": "TheXCompressor\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T19:21:36.143Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
