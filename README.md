@@ -19,6 +19,7 @@ A versital data compressor written in C#
 - Huffman (Text-Binary)
 - LZ77
 - LZW
+- Deflate
 
 ## Supported File Types
 - Text: .txt, .csv, .json
