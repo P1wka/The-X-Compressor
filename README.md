@@ -5,3 +5,9 @@ A versital data compressor written in C#
 - It sorts the data file according to its type.
 - It automatically selects the most useful algorithm, or the user can choose the algorithm they want.
 - Data is compressed
+
+## Algorithms
+-RLE
+-Huffman (Text-Binary)
+-LZ77
+-LZW
