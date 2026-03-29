@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using Terminal.Gui;
 using XCompressor.Compression;
 using XCompressor.Utils;
@@ -17,6 +18,7 @@ namespace XCompressor.UI
         private readonly HuffmanCompressionBinary huffmanBinaryCompressor;
         private readonly LZ77Compression lz77Compressor;
         private readonly LZWCompression lzwCompressor;
+        private readonly DeflateCompression deflateCompressor;
         private readonly string examplesDir;
 
         private enum Algorithm
@@ -25,7 +27,9 @@ namespace XCompressor.UI
             HuffmanText = 1,
             HuffmanBinary = 2,
             LZ77 = 3,
-            LZW = 4
+            LZW = 4,
+            Deflate = 5,
+            AUTO = 6,
         }
 
         public MainWindow()
@@ -39,6 +43,7 @@ namespace XCompressor.UI
             huffmanBinaryCompressor = new HuffmanCompressionBinary();
             lz77Compressor = new LZ77Compression();
             lzwCompressor = new LZWCompression();
+            deflateCompressor = new DeflateCompression();
 
             examplesDir = Path.Combine(AppContext.BaseDirectory, "examples");
             if (!Directory.Exists(examplesDir))
@@ -47,7 +52,7 @@ namespace XCompressor.UI
             }
 
             // title panel
-            var titlePanel = new FrameView("🌟 XCompressor | v1.1 🌟")
+            var titlePanel = new FrameView("🌟 XCompressor | v1.2 🌟")
             {
                 X = 0,
                 Y = 0,
@@ -69,13 +74,13 @@ namespace XCompressor.UI
 
             //algorithm selection
             Add(new Label("Algorithm:") { X = 2, Y = 6 });
-            algorithmSelector = new RadioGroup(new ustring[] { "RLE", "Huffman Text", "Huffman Binary", "LZ77", "LZW" })
+            algorithmSelector = new RadioGroup(new ustring[] { "RLE", "Huffman Text", "Huffman Binary", "LZ77", "LZW", "Deflate", "Auto" })
             {
                 X = 2,
                 Y = 7,
                 Width = 40,
                 //keep the radio group height constrained so it does not overlap the output panel.
-                Height = 5
+                Height = 6
             };
             Add(algorithmSelector);
 
@@ -156,6 +161,114 @@ namespace XCompressor.UI
                 string resultFile;
                 long resultSize;
 
+                if (algorithm == Algorithm.AUTO)
+                {
+                    // Auto: try available compressors and choose by highest compression ratio
+                    if (originalSize == 0)
+                    {
+                        // create an empty compressed file
+                        resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".auto");
+                        FileHelper.WriteFile(resultFile, Array.Empty<byte>());
+                        resultSize = 0;
+                        output.Text =
+                            $"✅ File: {requestedName}\n" +
+                            $"File Type: {(isText ? "📄 Text" : "🖼️ Binary")}\n" +
+                            $"Algorithm: Auto (empty input)\n" +
+                            $"Original Size: {originalSize} bytes\n" +
+                            $"Compressed Size: {resultSize} bytes\n" +
+                            $"Compression Ratio: 0.00%\n" +
+                            $"Status: Success!\n" +
+                            $"Saved File: {Path.GetFileName(resultFile)}";
+                        return;
+                    }
+
+                    if (isText)
+                    {
+                        var content = FileHelper.ReadFile(path);
+                        // candidates: RLE (string), HuffmanText (bytes), LZ77 (string), LZW (string), Deflate (bytes/string)
+                        var rleBytes = Encoding.UTF8.GetBytes(rleCompressor.Compress(content));
+                        var huffBytes = huffmanCompressor.Compress(content);
+                        var lz77Bytes = Encoding.UTF8.GetBytes(lz77Compressor.Compress(content));
+                        var lzwBytes = Encoding.UTF8.GetBytes(lzwCompressor.Compress(content));
+
+                        // Ensure deflate result is treated as bytes regardless of its concrete return type
+                        object deflateResult = deflateCompressor.Compress(content);
+                        byte[] deflateBytes = deflateResult switch
+                        {
+                            byte[] b => b,
+                            string s => Encoding.UTF8.GetBytes(s),
+                            _ => Array.Empty<byte>()
+                        };
+
+                        // compute compression reduction ratio (%) = (original - compressed)/original * 100
+                        double rleRatio = originalSize > 0 ? 100.0 * (originalSize - rleBytes.Length) / originalSize : 0.0;
+                        double huffRatio = originalSize > 0 ? 100.0 * (originalSize - huffBytes.Length) / originalSize : 0.0;
+                        double lz77Ratio = originalSize > 0 ? 100.0 * (originalSize - lz77Bytes.Length) / originalSize : 0.0;
+                        double lzwRatio = originalSize > 0 ? 100.0 * (originalSize - lzwBytes.Length) / originalSize : 0.0;
+                        double deflateRatio = originalSize > 0 ? 100.0 * (originalSize - deflateBytes.Length) / originalSize : 0.0;
+
+                        var best = (algo: "RLE", extn: ".rle", data: rleBytes, ratio: rleRatio);
+                        if (huffRatio > best.ratio) best = ("HuffmanText", ".huff", huffBytes, huffRatio);
+                        if (lz77Ratio > best.ratio) best = ("LZ77", ".lz77", lz77Bytes, lz77Ratio);
+                        if (lzwRatio > best.ratio) best = ("LZW", ".lzw", lzwBytes, lzwRatio);
+                        if (deflateRatio > best.ratio) best = ("Deflate", ".deflate", deflateBytes, deflateRatio);
+
+                        resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + best.extn);
+                        FileHelper.WriteFile(resultFile, best.data);
+                        resultSize = new FileInfo(resultFile).Length;
+
+                        var compressionRatio = originalSize > 0 ? 100.0 * (originalSize - resultSize) / originalSize : 0.0;
+                        output.Text =
+                            $"✅ File: {requestedName}\n" +
+                            $"File Type: 📄 Text\n" +
+                            $"Algorithm: Auto -> {best.algo} (highest reduction)\n" +
+                            $"Original Size: {originalSize} bytes\n" +
+                            $"Compressed Size: {resultSize} bytes\n" +
+                            $"Compression Ratio: {compressionRatio:F2}%\n" +
+                            $"Status: Success!\n" +
+                            $"Saved File: {Path.GetFileName(resultFile)}";
+                        return;
+                    }
+                    else
+                    {
+                        // binary input: try RLE bytes, HuffmanBinary, LZ77 bytes, LZW bytes, Deflate bytes
+                        var bytes = FileHelper.ReadFileBytes(path);
+                        var rleBytes = rleCompressor.CompressBytes(bytes);
+                        var huffBinBytes = huffmanBinaryCompressor.CompressBytes(bytes);
+                        var lz77Bytes = lz77Compressor.CompressBytes(bytes);
+                        var lzwBytes = lzwCompressor.CompressBytes(bytes);
+                        var deflateBytes = deflateCompressor.CompressBytes(bytes);
+
+                        double rleRatio = originalSize > 0 ? 100.0 * (originalSize - rleBytes.Length) / originalSize : 0.0;
+                        double huffBinRatio = originalSize > 0 ? 100.0 * (originalSize - huffBinBytes.Length) / originalSize : 0.0;
+                        double lz77Ratio = originalSize > 0 ? 100.0 * (originalSize - lz77Bytes.Length) / originalSize : 0.0;
+                        double lzwRatio = originalSize > 0 ? 100.0 * (originalSize - lzwBytes.Length) / originalSize : 0.0;
+                        double deflateRatio = originalSize > 0 ? 100.0 * (originalSize - deflateBytes.Length) / originalSize : 0.0;
+
+                        var best = (algo: "RLE", extn: ".rlebin", data: rleBytes, ratio: rleRatio);
+                        if (huffBinRatio > best.ratio) best = ("HuffmanBinary", ".huffbin", huffBinBytes, huffBinRatio);
+                        if (lz77Ratio > best.ratio) best = ("LZ77", ".lz77bin", lz77Bytes, lz77Ratio);
+                        if (lzwRatio > best.ratio) best = ("LZW", ".lzwbin", lzwBytes, lzwRatio);
+                        if (deflateRatio > best.ratio) best = ("Deflate", ".deflatebin", deflateBytes, deflateRatio);
+
+                        resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + best.extn);
+                        FileHelper.WriteFile(resultFile, best.data);
+                        resultSize = new FileInfo(resultFile).Length;
+
+                        var compressionRatio = originalSize > 0 ? 100.0 * (originalSize - resultSize) / originalSize : 0.0;
+                        output.Text =
+                            $"✅ File: {requestedName}\n" +
+                            $"File Type: 🖼️ Binary\n" +
+                            $"Algorithm: Auto -> {best.algo} (highest reduction)\n" +
+                            $"Original Size: {originalSize} bytes\n" +
+                            $"Compressed Size: {resultSize} bytes\n" +
+                            $"Compression Ratio: {compressionRatio:F2}%\n" +
+                            $"Status: Success!\n" +
+                            $"Saved File: {Path.GetFileName(resultFile)}";
+                        return;
+                    }
+                }
+
                 switch (algorithm)
                 {
                     case Algorithm.RLE:
@@ -171,7 +284,7 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var compressedBytes = rleCompressor.CompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".rlebin");
-                            FileHelper.WriteFileBytes(resultFile, compressedBytes);
+                            FileHelper.WriteFile(resultFile, compressedBytes);
                         }
                         break;
 
@@ -185,7 +298,7 @@ namespace XCompressor.UI
                             var content = FileHelper.ReadFile(path);
                             var compressedBytes = huffmanCompressor.Compress(content);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".huff");
-                            FileHelper.WriteFileBytes(resultFile, compressedBytes);
+                            FileHelper.WriteFile(resultFile, compressedBytes);
                         }
                         break;
 
@@ -205,14 +318,14 @@ namespace XCompressor.UI
                             {
                                 //nothing to compress
                                 //or create an empty compressed file.
-                                FileHelper.WriteFileBytes(resultFile, Array.Empty<byte>());
+                                FileHelper.WriteFile(resultFile, Array.Empty<byte>());
                             }
                             else
                             {
                                 //once read and once compress
                                 var bytes = FileHelper.ReadFileBytes(path);
                                 var compressedBytes = huffmanBinaryCompressor.CompressBytes(bytes);
-                                FileHelper.WriteFileBytes(resultFile, compressedBytes);
+                                FileHelper.WriteFile(resultFile, compressedBytes);
                             }
                         }
                         break;
@@ -230,7 +343,7 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var compressedBytes = lz77Compressor.CompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".lz77bin");
-                            FileHelper.WriteFileBytes(resultFile, compressedBytes);
+                            FileHelper.WriteFile(resultFile, compressedBytes);
                         }
                         break;
 
@@ -247,9 +360,18 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var compressedBytes = lzwCompressor.CompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".lzwbin");
-                            FileHelper.WriteFileBytes(resultFile, compressedBytes);
+                            FileHelper.WriteFile(resultFile, compressedBytes);
                         }
 
+                        break;
+
+                    case Algorithm.Deflate:
+                        {
+                            var content = FileHelper.ReadFile(path);
+                            var compressedBytes = deflateCompressor.Compress(content);
+                            resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".deflate");
+                            FileHelper.WriteFile(resultFile, compressedBytes);
+                        }
                         break;
 
                     default:
@@ -258,7 +380,7 @@ namespace XCompressor.UI
 
                 resultSize = new FileInfo(resultFile).Length;
 
-                var compressionRatio = originalSize > 0 ? 100.0 * resultSize / originalSize : 0.0;
+                var compressionRatioFinal = originalSize > 0 ? 100.0 * resultSize / originalSize : 0.0;
                 var fileType = isText ? "📄 Text" : "🖼️ Binary";
 
                 output.Text =
@@ -267,7 +389,7 @@ namespace XCompressor.UI
                     $"Algorithm: {algorithm}\n" +
                     $"Original Size: {originalSize} bytes\n" +
                     $"Compressed Size: {resultSize} bytes\n" +
-                    $"Compression Ratio: {compressionRatio:F2}%\n" +
+                    $"Compression Ratio: {compressionRatioFinal:F2}%\n" +
                     $"Status: Success!\n" +
                     $"Saved File: {Path.GetFileName(resultFile)}";
             }
@@ -319,7 +441,7 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var decompressedBytes = rleCompressor.DecompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".decompressed.bin");
-                            FileHelper.WriteFileBytes(resultFile, decompressedBytes);
+                            FileHelper.WriteFile(resultFile, decompressedBytes);
                         }
                         break;
 
@@ -337,7 +459,7 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var decompressedBytes = huffmanBinaryCompressor.DecompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".decompressed.bin");
-                            FileHelper.WriteFileBytes(resultFile, decompressedBytes);
+                            FileHelper.WriteFile(resultFile, decompressedBytes);
                         }
                         break;
 
@@ -354,7 +476,7 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var decompressedBytes = lz77Compressor.DecompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".decompressed.bin");
-                            FileHelper.WriteFileBytes(resultFile, decompressedBytes);
+                            FileHelper.WriteFile(resultFile, decompressedBytes);
                         }
                         break;
 
@@ -371,7 +493,16 @@ namespace XCompressor.UI
                             var bytes = FileHelper.ReadFileBytes(path);
                             var decompressedBytes = lzwCompressor.DecompressBytes(bytes);
                             resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".decompressed.bin");
-                            FileHelper.WriteFileBytes(resultFile, decompressedBytes);
+                            FileHelper.WriteFile(resultFile, decompressedBytes);
+                        }
+                        break;
+
+                    case Algorithm.Deflate:
+                        {
+                            var bytes = FileHelper.ReadFileBytes(path);
+                            var decompressedBytes = deflateCompressor.DecompressBytes(bytes);
+                            resultFile = Path.Combine(examplesDir, Path.GetFileNameWithoutExtension(requestedName) + ".decompressed.bin");
+                            FileHelper.WriteFile(resultFile, decompressedBytes);
                         }
                         break;
 

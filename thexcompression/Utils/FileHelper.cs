@@ -23,7 +23,7 @@ namespace XCompressor.Utils
             return File.ReadAllBytes(path);
         }
 
-        public static void WriteFileBytes(string path, byte[] bytes)
+        public static void WriteFile(string path, byte[] bytes)
         {
             File.WriteAllBytes(path, bytes);
         }
