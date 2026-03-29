@@ -25,7 +25,7 @@ A versital data compressor written in C#
 - Binary: .bin, .dat
 - Images: .jpg, .png (may not compress efficiently)
 
-  ## Important Notes
+## Important Notes
 - Some file types like JPG, PNG, MP3 are already compressed. (They'll not work well when you tried to compress)
 - Applying compression again may increase file size.
 - This is expected behavior and not an error.
